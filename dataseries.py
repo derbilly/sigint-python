@@ -6,7 +6,7 @@ import matplotlib.pyplot
 import sigint
 
 class FrequencyDomainData:
-	def __init__(self, data=None, frequency=None):
+	def __init__(self, data=None, frequency=None, label=None):
 		if data is not None:
 			self.__data = numpy.array(data) # data is array
 		else:
@@ -15,6 +15,7 @@ class FrequencyDomainData:
 			self.__frequency = frequency
 		else:
 			self.__frequency = None
+		self.label = label
 	
 	# setters and getters
 	@property
@@ -81,18 +82,19 @@ class FrequencyDomainData:
 	
 
 class SParameters(FrequencyDomainData):
-	def __init__(self,data):
+	def __init__(self, data, label=None):
 		# data: touchstone file
 		# data: SParameter object
 		# data: dict with 'S', 'frequency' (,'portZ', 'label')
-		FrequencyDomainData.__init__(self)
+		FrequencyDomainData.__init__(self, label=label)
 		if isinstance(data,SParameters):
 			self.__S = data.S
 			self.__frequency = data.frequency
 			self.__numPorts = data.numPorts
 			self.__portZ = data.portZ
 			self.__dataFile = data.dataFile
-			self.__label = data.label
+			if not label:
+				self.label = data.label
 		else:
 			try: # data is touchstone file
 				self.__dataFile = data
@@ -100,7 +102,8 @@ class SParameters(FrequencyDomainData):
 				# generate default label from filename
 				pattern0 = re.compile('^.*/')
 				pattern1 = re.compile('[.]s[0-9]*p')
-				self.__label  = pattern1.sub('',pattern0.sub('',self.dataFile))
+				if not label:
+					self.label  = pattern1.sub('',pattern0.sub('',self.dataFile))
 			except: 
 				try: # data is dict
 					self.__S = data['S']
@@ -118,12 +121,13 @@ class SParameters(FrequencyDomainData):
 					except KeyError:
 						self.__dataFile = ''
 					try:
-						self.__label = data['label']
+						self.label = data['label']
 					except KeyError:
 						# generate default label from filename
 						pattern0 = re.compile('^.*/')
 						pattern1 = re.compile('[.]s[0-9]*p')
-						self.__label  = pattern1.sub('',pattern0.sub('',self.dataFile))
+						if not label:
+							self.label  = pattern1.sub('',pattern0.sub('',self.dataFile))
 				except:
 					print("No such file or data: {0}".format(data))
 					raise 
@@ -167,6 +171,51 @@ class SParameters(FrequencyDomainData):
 			m = in2 - 1
 
 		data = self.S[n,m,:]
+		freq = self.frequency
+
+		if numpy.max(frequency)==None:
+			return data
+		else:
+			freqreq = numpy.array(frequency) # requested frequencies
+			if numpy.max(freqreq) <= numpy.max(freq) and numpy.min(freqreq) >= numpy.min(freq):
+				if freqreq in freq: # 
+					return data[freq==freqreq]
+				else: # interpolate the values
+					return sigint.fInterpolate(data,freq,freqreq)
+			else:
+				print("Frequency out of range")
+	@property
+	def Z(self):
+		"""Z-Parameters:
+		Z(row,col,freq)	- ndarray
+			row:	destination port, index from 0
+			col:	source port, index from 0
+			freq:	frequency index, index from 0
+		"""
+		try:
+			return self.__Z.copy()
+		except:
+			self.__s2z()
+			return self.__Z.copy()
+	
+	def getZ(self,in1=(1,1),in2=None,frequency=None):
+		"""getZ(index) for index=(n,m) indexed from 1,
+		returns Znm as a vector over the frequency index
+		Usage:
+			getZ(n,m[,frequency])  indices as separate args with optional frequency
+			getZ((n,m)[,frequency]) indices as a tuple with optional frequency
+			frequency can be specified as a single value or list of values
+		"""
+		try:
+			n = in1[0]-1
+			m = in1[1]-1
+			if frequency == None:
+				frequency = in2
+		except TypeError:
+			n = in1 - 1
+			m = in2 - 1
+
+		data = self.Z[n,m,:]
 		freq = self.frequency
 
 		if numpy.max(frequency)==None:
@@ -353,6 +402,20 @@ class SParameters(FrequencyDomainData):
 		fid.write("\n")
 		fid.close()
 		
+	def __s2z(self):
+		if self.numPorts == 2:
+			S11 = self.getS(1,1)
+			S12 = self.getS(1,2)
+			S21 = self.getS(2,1)
+			S22 = self.getS(2,2)
+			denom = (1-S11)*(1-S22) - S12*S21
+			self.__Z = self.portZ * numpy.array([ 
+				[ ((1+S11)*(1-S22)+S12*S21)/denom, 2*S21/denom ],
+				[ 2*S21/denom, ((1-S11)*(1+S22) + S12*S21)/denom]
+				])
+		else:
+			raise NumPortsError("Z matrix only implemented for 2-port networks")
+				
 	def cascade(self, other):
 		"""Cascades the SParameters object with another SParameters object.
 		Assumes port1-->port2, port3-->port4, etc.
@@ -368,8 +431,8 @@ class SParameters(FrequencyDomainData):
 		pass
 
 class MixedModeSParameters(SParameters):
-	def __init__(self,data):
-		SParameters.__init__(self,data)
+	def __init__(self, data, label=None):
+		SParameters.__init__(self, data, label=label)
 		self.__genSMM()
 	
 	def __str__(self):

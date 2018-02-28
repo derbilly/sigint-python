@@ -70,7 +70,7 @@ class SpecLine(sigint.dataseries.FrequencyDomainData):
 	# IEEE 802.3bs 120E.4.1
 	# Also used for chip-to-module 200GAUI-4
 	generatorMethod['400GAUI-8'] = {
-		'IL_MTFref':sigint.genspecline.gen_400GAUI8_IL_tfref, # 120E4.1 Test fixture reference insertion loss
+		'IL_MTFref':sigint.genspecline.gen_400GAUI8_IL_MTFref, # 120E4.1 Test fixture reference insertion loss
 		'IL_MTFmax':sigint.genspecline.gen_400GAUI8_IL_MTFmax, # 120E4.1 92.11.3 Mated test fixtures
 		'IL_MTFmin':sigint.genspecline.gen_400GAUI8_IL_MTFmin, # 120E4.1 92.11.3 Mated test fixtures
 		'RLd_MTF':sigint.genspecline.gen_400GAUI8_RLd_MTF, # 120E4.1 92.11.3 Mated test fixtures

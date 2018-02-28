@@ -47,6 +47,51 @@ def gen_CEI28GVSR_RLc(self):
 	dBspecLine = numpy.array([1.,1.])*(-2.0)
 	self.specLine = 10**(dBspecLine/20)
 	self.limitType = 'max'
+def gen_CEI28GVSR_IL_HCBref(self): # CEI 4.0 13.4.1.1 eq 13-6
+	f1 = 50e9
+	f2 = 28.1e9
+	num_points = 201
+	self.frequency = numpy.linspace(f1,f2,num_points)
+	dBspecLine = 2.0*(0.001 - 0.096*numpy.sqrt(self.frequency/1e9) - 0.046*self.frequency/1e9)
+	self.specLine = 10**(dBspecLine/20)
+	self.limitType = 'ref'
+def gen_CEI28GVSR_IL_MCBref(self): # CEI 4.0 13.4.1.1 eq 13-7
+	f1 = 50e9
+	f2 = 28.1e9
+	num_points = 201
+	self.frequency = numpy.linspace(f1,f2,num_points)
+	dBspecLine = 1.25*(0.001 - 0.096*numpy.sqrt(self.frequency/1e9) - 0.046*self.frequency/1e9)
+	self.specLine = 10**(dBspecLine/20)
+	self.limitType = 'ref'
+def gen_CEI28GVSR_RL_MTF(self): # CEI 4.0 13.4.1.2 eq 13-8
+	f1 = 0
+	f2 = 28.1e9
+	num_points = 201
+	self.frequency = numpy.linspace(f1,f2,num_points)
+	dBspecLine = -18 + self.frequency/1e9 / 2
+	dBspecLine[self.frequency>4e9] = -20 + self.frequency/1e9
+	self.specLine = 10**(dBspecLine/20)
+	self.limitType = 'max'
+def gen_CEI28GVSR_ILdc_MTF(self): # CEI 4.0 13.4.1.2 eq 13-8
+	f1 = 0
+	f2 = 28.1e9
+	num_points = 201
+	self.frequency = numpy.linspace(f1,f2,num_points)
+	dBspecLine = -35 + 1.07*self.frequency/1e9
+	dBspecLine[self.frequency<14e9] = -20
+	self.specLine = 10**(dBspecLine/20)
+	self.limitType = 'max'
+#################################################################################
+# CEI-56G-VSR-PAM4
+# OIF-CEI-04.0
+def gen_CEI56GVSRPAM4_IL_MTFref(self): # CEI 4.0 16.4.1.1 eq 16-11
+	f1 = 50e9
+	f2 = 29e9
+	num_points = 201
+	self.frequency = numpy.linspace(f1,f2,num_points)
+	dBspecLine = -(0.475*numpy.sqrt(self.frequency/1e9) + 0.1204*self.frequency/1e9 + 0.002*(self.frequency/1e9)**2)
+	self.specLine = 10**(dBspecLine/20)
+	self.limitType = 'ref'
 #################################################################################
 # 10GBASE-KR
 # IEEE 802.3 Annex69B
@@ -187,7 +232,7 @@ def gen_100GCR4_RLdc_MTF(self): # 92.11.3.3 Mated test fixtures common-mode conv
 # 400GAUI-8 C2M
 # IEEE 802.3bs 120E4.1
 # Also used for 200GAUI-4
-def gen_400GAUI8_IL_tfref(self): # 120E-3 Test fixture insertion loss
+def gen_400GAUI8_IL_MTFref(self): # 120E-3 Test fixture insertion loss
 	self.frequency = numpy.linspace(10e6,25e9,int(25e9/10e6))
 	dBspecLine = -(0.471*numpy.sqrt(self.frequency/1e9) + 0.1194*self.frequency/1e9 + 0.002*(self.frequency/1e9)**2)
 	self.specLine = 10**(dBspecLine/20)

@@ -50,6 +50,14 @@ class FrequencyDomainPlot(DataPlot):
 				else:
 					self.labelList.append(data.standard + " " + data.specItem)
 				self.plotKwargs.append(kwargs)
+			else:
+				self._dataList.append(data.data)
+				self._frequencyList.append(data.frequency)
+				if label:
+					self.labelList.append(label)
+				else:
+					self.labelList.append(' ')
+				self.plotKwargs.append(kwargs)
 		elif type(data) == numpy.ndarray:
 			self._dataList.append(data)
 			self._frequencyList.append(arg2)
