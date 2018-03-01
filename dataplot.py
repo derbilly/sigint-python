@@ -116,5 +116,7 @@ class FrequencyDomainPlot(DataPlot):
 		matplotlib.pyplot.xlabel('GHz')
 		matplotlib.pyplot.ylabel(self.dataFormat)
 		matplotlib.pyplot.title(self.title)
-		matplotlib.pyplot.legend(self.labelList,fontsize='small')
+		legnd = matplotlib.pyplot.legend(self.labelList,fontsize='small')
+		if legnd:
+			legnd.draggable()
 		matplotlib.pyplot.grid(True)
