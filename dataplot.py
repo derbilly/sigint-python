@@ -67,7 +67,7 @@ class FrequencyDomainPlot(DataPlot):
 				self.labelList.append(arg3)
 			self.plotKwargs.append(kwargs)
 
-	def generatePlot(self):
+	def generatePlot(self, legend_loc = 0):
 		matplotlib.pyplot.figure(figsize=(10,7.5))
 		matplotlib.pyplot.hold(True)
 		try:
@@ -116,7 +116,7 @@ class FrequencyDomainPlot(DataPlot):
 		matplotlib.pyplot.xlabel('GHz')
 		matplotlib.pyplot.ylabel(self.dataFormat)
 		matplotlib.pyplot.title(self.title)
-		legnd = matplotlib.pyplot.legend(self.labelList,fontsize='small')
+		legnd = matplotlib.pyplot.legend(self.labelList,fontsize='small', loc=legend_loc)
 		if legnd:
 			legnd.draggable()
 		matplotlib.pyplot.grid(True)
