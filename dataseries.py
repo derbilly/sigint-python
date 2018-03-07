@@ -11,10 +11,7 @@ class FrequencyDomainData:
 			self.__data = numpy.array(data) # data is array
 		else:
 			self.__data = None
-		if frequency is not None:
-			self.__frequency = frequency
-		else:
-			self.__frequency = None
+		self.__frequency = frequency
 		self.label = label
 	
 	# setters and getters
@@ -32,8 +29,8 @@ class FrequencyDomainData:
 	
 	@frequency.setter
 	def frequency(self, frequency):
-		if self.__frequency:
-			warn("Warning: overwriting frequency!")
+		if self.__frequency is not None:
+			print("Warning: overwriting frequency!")
 		self.__frequency = frequency
 	
 	@property
