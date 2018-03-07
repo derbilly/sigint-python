@@ -67,8 +67,8 @@ class FrequencyDomainPlot(DataPlot):
 				self.labelList.append(arg3)
 			self.plotKwargs.append(kwargs)
 
-	def generatePlot(self, legend_loc = 0):
-		matplotlib.pyplot.figure(figsize=(10,7.5))
+	def generatePlot(self, legend_loc = 0, plot_size=(10,7.5)):
+		matplotlib.pyplot.figure(figsize=plot_size)
 		matplotlib.pyplot.hold(True)
 		try:
 			xlimits = self._xlimits
