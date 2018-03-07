@@ -26,10 +26,10 @@ class SpecLine(sigint.dataseries.FrequencyDomainData):
 	# CEI-28G-VSR
 	# OIF-CEI-03.1
 	generatorMethod['CEI-28G-VSR'] = {
-		'13.3.7 eq. 13-19':sigint.genspecline.gen_CEI28GVSR_RLd, # 13.3.7 eq.13-19 tables 13-1,13-2,13-4,13-5
-		'13.3.8 eq. 13-20':sigint.genspecline.gen_CEI28GVSR_RLdc11, # 13.3.8 eq.13-20 tables 13-1,13-2,13-4,13-5
-		'13.3.8 eq. 13-21':sigint.genspecline.gen_CEI28GVSR_RLdc22, # 13.3.8 eq.13-21 tables 13-1,13-2,13-4,13-5
-		'13.3.9 SCC22':sigint.genspecline.gen_CEI28GVSR_RLc} # 13.3.9 tables 13-1,13-4
+		'RLd':sigint.genspecline.gen_CEI28GVSR_RLd, # 13.3.7 eq.13-19 tables 13-1,13-2,13-4,13-5
+		'RLcd':sigint.genspecline.gen_CEI28GVSR_RLcd11, # 13.3.8 eq.13-20 tables 13-1,13-2,13-4,13-5
+		'RLdc':sigint.genspecline.gen_CEI28GVSR_RLdc22, # 13.3.8 eq.13-21 tables 13-1,13-2,13-4,13-5
+		'RLc':sigint.genspecline.gen_CEI28GVSR_RLc} # 13.3.9 tables 13-1,13-4
 	
 	#################################################################################
 	# 10GBASE-KR

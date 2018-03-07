@@ -14,7 +14,7 @@ def gen_CEI28GVSR_RLd(self): # 13.3.7 eq 13-19
 	dBspecLine = numpy.append(numpy.array(-11.),dBspecLine)
 	self.specLine = 10**(dBspecLine/20)
 	self.limitType = 'max'
-def gen_CEI28GVSR_RLdc11(self): # 13.3.8 eq 13-20
+def gen_CEI28GVSR_RLcd11(self): # 13.3.8 eq 13-20
 	fb = 28e9
 	f1 = 50e6
 	f2 = fb/2.0
