@@ -57,8 +57,17 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 	# init output CSV
 	outputFile = outputFile.replace('.csv', '')
 	fid = open(outputDir + outputFile + '.csv', 'w')
-	header = ['signal', 'Rterm (Ohms)', 'Differential termination mismatch (%)']
-	fid.write(','.join(header) + '\n')
+	header1 = ['','','']
+	header2 = ['signal', 'Rterm (Ohms)', 'Differential termination mismatch (%)']
+	# add margin items to header
+	for plotspec in plotspecs:
+		for limit in plotspec[2]:
+			header1.append(limit[0]+' '+limit[2])
+			header1.append('')
+			header2.append('margin (dB)')
+			header2.append('at frequency (GHz)')
+	fid.write(','.join(header1) + '\n')
+	fid.write(','.join(header2) + '\n')
 	# loop over sp files
 	for n, spfile in enumerate(measurements):
 		rl = sigint.dataseries.MixedModeSParameters(spfile)
@@ -68,10 +77,16 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 		for m, plot in enumerate(plots):
 			plot.addItem(rl, plotspecs[m][1], (1,1), label = rl.label)
 		
+		output_line = []
 		Zterm , DZM = computeTerminationMismatch(rl, f0)
+		output_line.extend([rl.label, '{:0.1f}'.format(Zterm) , '{:0.1f}'.format(DZM)])
+		# evaluate margins
+		for plotspec in plotspecs:
+			for limit in plotspec[2]:
+				margin, wc, wcf = sigint.specline.evaluateLimitLine(sigint.dataseries.FrequencyDomainData(eval('rl.'+plotspec[1]+'[0,0,:]'),rl.frequency),limit[0],limit[1])
+				output_line.extend(['{:0.2f}'.format(wc), '{:0.1f}'.format(wcf*1e-9)])
 		# add data to CSV
-		fid.write(rl.label + ',{:0.1f},{:0.1f}\n'.format(Zterm, DZM))
-		# generate individual plot
+		fid.write(','.join(output_line) + '\n')
 
 		# generate combined plots
 	for m, plot in enumerate(plots):
@@ -84,6 +99,8 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 		if plotspecs[m][3][3] is not None:
 			plot.ylim(high=plotspecs[m][3][3])
 		plot.generatePlot(plot_size=plot_size)
+		matplotlib.pyplot.savefig(outputDir + outputFile + ' ' + plotspecs[m][0] + '.png')
+		matplotlib.pyplot.close()
 	# close output file
 	fid.close()
 
