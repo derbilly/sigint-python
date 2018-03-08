@@ -8,9 +8,9 @@ def gen_CEI28GVSR_RLd(self): # 13.3.7 eq 13-19
 	f1 = 50e6
 	f2 = fb/7.0
 	f3 = fb
-	self.frequency = numpy.linspace(f2,f3,100)
-	dBspecLine = -6. + 9.2*numpy.log10(2.*self.frequency/fb)
-	self.frequency = numpy.append(numpy.array(f1),self.frequency)
+	freq = numpy.linspace(f2,f3,100)
+	dBspecLine = -6. + 9.2*numpy.log10(2.*freq/fb)
+	self.frequency = numpy.append(numpy.array(f1),freq)
 	dBspecLine = numpy.append(numpy.array(-11.),dBspecLine)
 	self.specLine = 10**(dBspecLine/20)
 	self.limitType = 'max'
