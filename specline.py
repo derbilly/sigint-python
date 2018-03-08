@@ -1,6 +1,41 @@
 # import some module functions
 import sigint.dataseries
 import sigint.genspecline
+import numpy
+
+def evaluateLimitLine(fddata, standard, specItem, format='dB'):
+	limitLine = SpecLine(standard, specItem)
+	# combine frequencies and interpolate between limits of limit line
+	f0 = min(limitLine.frequency)
+	f1 = max(limitLine.frequency)
+	freq = fddata.frequency
+	freq = numpy.append(freq, limitLine.frequency)
+	freq = freq[freq>=f0]
+	freq = freq[freq<=f1]
+	freq = numpy.sort(numpy.unique(freq))
+	data = sigint.fInterpolate(fddata.data, fddata.frequency, freq)
+	limit = sigint.fInterpolate(limitLine.specLine, limitLine.frequency, freq)
+	# format db
+	if format=='dB':
+		data = sigint.dB(data)
+		limit = sigint.dB(limit)
+	# margin = 
+	# max limit - data
+	# min data - limit
+	# ref abs(data-limit)
+	if limitLine.limitType == 'max':
+		margin = limit - data
+	elif limitLine.limitType == 'min':
+		margin = data - limit
+	elif limitLine.limitType == 'ref':
+		margin = numpy.abs(data - limit)
+	else:
+		margin = numpy.zeros(len(data))
+	# find min margin and freq
+	worstcase = min(margin)
+	worstcase_freq = freq[margin==worstcase][0]
+	# return margin, wc and freq
+	return (sigint.dataseries.FrequencyDomainData(margin,freq,label='margin'), worstcase, worstcase_freq)
 
 class SpecLine(sigint.dataseries.FrequencyDomainData):
 	def __init__(self,standard,specItem):

@@ -31,7 +31,10 @@ class FrequencyDomainData:
 	def frequency(self, frequency):
 		if self.__frequency is not None:
 			print("Warning: overwriting frequency!")
-		self.__frequency = frequency
+			# interpolate frequency
+			self.__frequency = frequency
+		else:
+			self.__frequency = frequency
 	
 	@property
 	def data(self):
