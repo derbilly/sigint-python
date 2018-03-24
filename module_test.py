@@ -11,7 +11,13 @@ import re
 def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='output/', standard = 'CAUI4', label='', labels=None, f0=50e6, signal='RX'):
 	"""Takes 2-port return loss measurements and compliance plots
 	and outputs compliance data.  Input is a list of sp"""
-	plot_size = (6,4)
+	# if f0 is scalar, make it a vector
+	try:
+		len(f0)
+	except:
+		f0 = [f0]
+	
+	plot_size = (8,6)
 	limit_line_styles = ['dashed', 'dashdot', 'dotted']
 	if not os.path.isdir(outputDir):
 		os.mkdir(outputDir)
@@ -57,8 +63,15 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 	# init output CSV
 	outputFile = outputFile.replace('.csv', '')
 	fid = open(outputDir + outputFile + '.csv', 'w')
-	header1 = ['','','']
-	header2 = ['signal', 'Rterm (Ohms)', 'Differential termination mismatch (%)']
+	header1 = ['']
+	header2 = ['signal']
+	try:
+		for fn in f0:
+			header1.extend(['',''])
+			header2.extend(['Rterm (Ohms) ({:0.0f}'.format(fn) , 'Differential termination mismatch (%) ({:0.0f}'.format(fn)])
+	except:
+		header1.extend(['',''])
+		header2.extend(['Rterm (Ohms) ({:0.0f} MHz)'.format(f0*1e-6) , 'Differential termination mismatch (%) ({:0.0f} MHz)'.format(f0*1e-6)])
 	# add margin items to header
 	for plotspec in plotspecs:
 		for limit in plotspec[2]:
@@ -69,8 +82,11 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 	fid.write(','.join(header1) + '\n')
 	fid.write(','.join(header2) + '\n')
 	# loop over sp files
-	for n, spfile in enumerate(measurements):
-		rl = sigint.dataseries.MixedModeSParameters(spfile)
+	for n, measurement in enumerate(measurements):
+		if isinstance(measurement, sigint.dataseries.MixedModeSParameters):
+			rl = measurement
+		else:
+			rl = sigint.dataseries.MixedModeSParameters(measurement)
 		if (labels is not None) and (len(labels) == len(measurements)):
 			rl.label = labels[n]
 		# add to plots
@@ -79,7 +95,12 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 		
 		output_line = []
 		Zterm , DZM = computeTerminationMismatch(rl, f0)
-		output_line.extend([rl.label, '{:0.1f}'.format(Zterm) , '{:0.1f}'.format(DZM)])
+		output_line.extend([rl.label])
+		try:
+			for m, fn in enumerate(f0):
+				output_line.extend(['{:0.1f}'.format(Zterm[m]) , '{:0.1f}'.format(DZM[m])])
+		except:
+			output_line.extend(['{:0.1f}'.format(Zterm[0]) , '{:0.1f}'.format(DZM[0])])
 		# evaluate margins
 		for plotspec in plotspecs:
 			for limit in plotspec[2]:
@@ -105,8 +126,8 @@ def CAUI4ChipToModule(measurements, plot=True, outputFile='output', outputDir='o
 	fid.close()
 
 def computeTerminationMismatch(sparam, f0):
-	Zp = numpy.real(sparam.getZ((1,1), frequency=[f0]) - sparam.getZ((1,2), frequency=[f0]))[0]
-	Zn = numpy.real(sparam.getZ((2,2), frequency=[f0]) - sparam.getZ((2,1), frequency=[f0]))[0]
+	Zp = numpy.real(sparam.getZ((1,1), frequency=f0) - sparam.getZ((1,2), frequency=f0))#[0]
+	Zn = numpy.real(sparam.getZ((2,2), frequency=f0) - sparam.getZ((2,1), frequency=f0))#[0]
 	Zterm = Zp+Zn
 	DZM = 2*numpy.abs(Zp-Zn)/(Zp+Zn)*100
 	return (Zterm, DZM)

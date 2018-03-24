@@ -249,7 +249,7 @@ class SParameters(FrequencyDomainData):
 		for n in range(N):
 			for m in range(N):
 				matplotlib.pyplot.subplot(N,N,(n)*N+m+1)
-				matplotlib.pyplot.plot(self.frequency*1e-9,dB(getattr(self,matrix)[n,m,:]))
+				matplotlib.pyplot.plot(self.frequency*1e-9,sigint.dB(getattr(self,matrix)[n,m,:]))
 				matplotlib.pyplot.xlabel('GHz')
 				matplotlib.pyplot.ylabel('dB')
 				matplotlib.pyplot.title(matrix+'('+str(n+1)+','+str(m+1)+')')
@@ -379,7 +379,7 @@ class SParameters(FrequencyDomainData):
 			data1 = numpy.abs(self.S)
 			data2 = numpy.angle(self.S)
 		elif dataFormat == 'DB':
-			data1 = dB(self.S)
+			data1 = sigint.dB(self.S)
 			data2 = numpy.angle(self.S)
 		else:
 			dataFormat = 'RI'
